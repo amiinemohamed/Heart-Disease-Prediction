@@ -225,3 +225,5 @@ python deploy/test_endpoint.py http://<your-fqdn>:8000
 ```bash
 az group delete -n rg-mlops-heart --yes --no-wait
 ```
+
+Disclaimer : I chose to show my subscription ID and other information, its just a dummy account, but I'm aware of the security risks and that's not something i would do in a production environment :)
