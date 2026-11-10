@@ -1,0 +1,1 @@
+{"columns": ["Cholesterol", "RestingBP", "Age", "FastingBS", "MaxHR", "Oldpeak", "Sex", "ChestPainType", "RestingECG", "ExerciseAngina", "ST_Slope"], "data": [[217.0, 139.0, 63.0, 1.0, 128.0, 1.2, "M", "ATA", "ST", "Y", "Flat"], [214.0, 110.0, 55.0, 1.0, 180.0, 0.4, "M", "ATA", "ST", "N", "Up"], [338.0, 130.0, 59.0, 1.0, 130.0, 1.5, "F", "ASY", "ST", "Y", "Flat"]]}

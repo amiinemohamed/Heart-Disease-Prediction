@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heart disease risk check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface: #f3f6f7; --panel: #ffffff; --ink: #13232b; --muted: #56666e;
+    --line: #d3dce0; --trace: #c2283a; --calm: #1d7566; --focus: #2a6fdb;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #0e161a; --panel: #152127; --ink: #e4edf0; --muted: #94a5ac;
+      --line: #2a3a42; --trace: #f0566a; --calm: #4fc0aa; --focus: #7aa8ff;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface); color: var(--ink);
+    font: 400 16px/1.5 "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  header { padding: 2.5rem 1.5rem 0; max-width: 60rem; margin: 0 auto; }
+  h1 { font-size: 2rem; line-height: 1.15; font-weight: 700; margin: 0 0 .5rem; letter-spacing: -.01em; }
+  header p { color: var(--muted); margin: 0; max-width: 38rem; }
+  .trace { display: block; width: 100%; height: 56px; margin-top: 1.5rem; }
+  .trace path { fill: none; stroke: var(--trace); stroke-width: 2; stroke-linejoin: round;
+    stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 1.6s ease-out .2s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) { .trace path { animation: none; stroke-dashoffset: 0; } }
+
+  main { max-width: 60rem; margin: 0 auto; padding: 0 1.5rem 3rem;
+    display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 2rem; align-items: start; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+
+  fieldset { border: 0; border-top: 1px solid var(--line); margin: 0; padding: 1.25rem 0 1.5rem; }
+  legend { font-weight: 600; font-size: 1.05rem; padding: 0 .75rem 0 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 1rem 1.25rem; margin-top: .75rem; }
+  label, .group-label { display: block; font-size: .9rem; font-weight: 500; margin-bottom: .3rem; }
+  .hint { display: block; font-size: .8rem; color: var(--muted); font-weight: 400; }
+  input[type=number], select {
+    width: 100%; font: inherit; color: var(--ink); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; padding: .55rem .65rem;
+  }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+  .seg label { flex: 1; margin: 0; text-align: center; padding: .5rem .25rem; cursor: pointer; font-weight: 500; border-left: 1px solid var(--line); }
+  .seg label:first-of-type { border-left: 0; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label:has(input:checked) { background: var(--ink); color: var(--panel); }
+  :focus-visible, .seg label:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .actions { display: flex; gap: .75rem; flex-wrap: wrap; padding-top: .5rem; }
+  button { font: inherit; font-weight: 600; border-radius: 6px; padding: .7rem 1.2rem; cursor: pointer; }
+  .primary { background: var(--trace); color: #fff; border: 1px solid var(--trace); }
+  .secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { opacity: .6; cursor: progress; }
+
+  aside { position: sticky; top: 1.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem; }
+  aside h2 { font-size: 1rem; margin: 0 0 .75rem; }
+  .empty { color: var(--muted); margin: 0; }
+  .prob { font-size: 3rem; font-weight: 700; line-height: 1; margin: .25rem 0; }
+  .verdict { font-weight: 600; margin: 0 0 1rem; }
+  .likely .prob, .likely .verdict { color: var(--trace); }
+  .unlikely .prob, .unlikely .verdict { color: var(--calm); }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: currentColor; transition: width .4s ease; }
+  .meta { font-size: .8rem; color: var(--muted); margin-top: 1rem; }
+  .error { color: var(--trace); margin: 0; }
+  footer { max-width: 60rem; margin: 0 auto; padding: 0 1.5rem 2rem; font-size: .8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Heart disease risk check</h1>
+  <p>Enter a patient’s clinical measurements to get the model’s prediction. Educational project, not a medical tool.</p>
+  <svg class="trace" viewBox="0 0 960 56" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 34 H180 l10 -6 l10 6 H240 l6 6 l12 -36 l12 46 l8 -10 H330 l14 -8 l16 8 H560 l10 -6 l10 6 H620 l6 6 l12 -36 l12 46 l8 -10 H710 l14 -8 l16 8 H960"/>
+  </svg>
+</header>
+
+<main>
+  <form id="form" novalidate>
+    <fieldset>
+      <legend>Patient</legend>
+      <div class="grid">
+        <div><label for="Age">Age <span class="hint">years</span></label><input id="Age" name="Age" type="number" min="1" max="120" required></div>
+        <div><span class="group-label" id="sex-l">Sex</span>
+          <div class="seg" role="radiogroup" aria-labelledby="sex-l">
+            <label><input type="radio" name="Sex" value="M" required><span>Male</span></label>
+            <label><input type="radio" name="Sex" value="F"><span>Female</span></label>
+          </div></div>
+        <div><label for="ChestPainType">Chest pain type</label>
+          <select id="ChestPainType" name="ChestPainType" required>
+            <option value="ASY">Asymptomatic</option><option value="NAP">Non-anginal pain</option>
+            <option value="ATA">Atypical angina</option><option value="TA">Typical angina</option>
+          </select></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Resting exam</legend>
+      <div class="grid">
+        <div><label for="RestingBP">Resting blood pressure <span class="hint">mm Hg, 0 if unknown</span></label><input id="RestingBP" name="RestingBP" type="number" min="0" max="250" required></div>
+        <div><label for="Cholesterol">Cholesterol <span class="hint">mg/dl, 0 if unknown</span></label><input id="Cholesterol" name="Cholesterol" type="number" min="0" max="700" required></div>
+        <div><span class="group-label" id="fbs-l">Fasting blood sugar &gt; 120 mg/dl</span>
+          <div class="seg" role="radiogroup" aria-labelledby="fbs-l">
+            <label><input type="radio" name="FastingBS" value="1" required><span>Yes</span></label>
+            <label><input type="radio" name="FastingBS" value="0"><span>No</span></label>
+          </div></div>
+        <div><label for="RestingECG">Resting ECG</label>
+          <select id="RestingECG" name="RestingECG" required>
+            <option value="Normal">Normal</option><option value="ST">ST-T wave abnormality</option>
+            <option value="LVH">Left ventricular hypertrophy</option>
+          </select></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Exercise test</legend>
+      <div class="grid">
+        <div><label for="MaxHR">Max heart rate <span class="hint">bpm</span></label><input id="MaxHR" name="MaxHR" type="number" min="50" max="230" required></div>
+        <div><span class="group-label" id="ea-l">Exercise-induced angina</span>
+          <div class="seg" role="radiogroup" aria-labelledby="ea-l">
+            <label><input type="radio" name="ExerciseAngina" value="Y" required><span>Yes</span></label>
+            <label><input type="radio" name="ExerciseAngina" value="N"><span>No</span></label>
+          </div></div>
+        <div><label for="Oldpeak">Oldpeak <span class="hint">ST depression</span></label><input id="Oldpeak" name="Oldpeak" type="number" step="0.1" min="-5" max="10" required></div>
+        <div><span class="group-label" id="sl-l">ST slope</span>
+          <div class="seg" role="radiogroup" aria-labelledby="sl-l">
+            <label><input type="radio" name="ST_Slope" value="Up" required><span>Up</span></label>
+            <label><input type="radio" name="ST_Slope" value="Flat"><span>Flat</span></label>
+            <label><input type="radio" name="ST_Slope" value="Down"><span>Down</span></label>
+          </div></div>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="primary" type="submit" id="submit">Get prediction</button>
+      <button class="secondary" type="button" id="example">Fill with an example patient</button>
+    </div>
+  </form>
+
+  <aside aria-live="polite" id="result">
+    <h2>Prediction</h2>
+    <p class="empty">Fill in the form and select Get prediction.</p>
+  </aside>
+</main>
+
+<footer id="model-info">Model: loading…</footer>
+
+<script>
+  // Same origin as the API, so this works locally (uvicorn), in Docker, and on Azure without changes
+  const API = "";
+  const form = document.getElementById("form");
+  const result = document.getElementById("result");
+  const submit = document.getElementById("submit");
+
+  const example = { Age: 54, Sex: "M", ChestPainType: "ASY", RestingBP: 140, Cholesterol: 239,
+    FastingBS: "0", RestingECG: "Normal", MaxHR: 160, ExerciseAngina: "N", Oldpeak: 1.2, ST_Slope: "Flat" };
+
+  document.getElementById("example").addEventListener("click", () => {
+    for (const [k, v] of Object.entries(example)) {
+      const el = form.elements[k];
+      if (el instanceof RadioNodeList) { for (const r of el) r.checked = r.value === String(v); }
+      else el.value = v;
+    }
+  });
+
+  function readForm() {
+    const d = Object.fromEntries(new FormData(form));
+    const numeric = ["Age", "RestingBP", "Cholesterol", "FastingBS", "MaxHR", "Oldpeak"];
+    for (const k of numeric) if (d[k] !== undefined && d[k] !== "") d[k] = Number(d[k]);
+    return d;
+  }
+
+  function showError(msg) {
+    result.className = "";
+    result.innerHTML = `<h2>Prediction</h2><p class="error"></p>`;
+    result.querySelector(".error").textContent = msg;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    submit.disabled = true; submit.textContent = "Predicting…";
+    try {
+      const res = await fetch(`${API}/predict`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(readForm()) });
+      const body = await res.json();
+      if (!res.ok) {
+        const detail = Array.isArray(body.detail)
+          ? body.detail.map(d => `${d.loc.at(-1)}: ${d.msg}`).join(". ")
+          : body.detail;
+        showError(`The API rejected the input. ${detail}`);
+        return;
+      }
+      const pct = Math.round(body.probability * 100);
+      result.className = body.prediction ? "likely" : "unlikely";
+      result.innerHTML = `<h2>Prediction</h2>
+        <p class="prob">${pct}%</p>
+        <p class="verdict"></p>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+        <p class="meta">Probability of heart disease, threshold 50%.</p>`;
+      result.querySelector(".verdict").textContent = body.label;
+    } catch (err) {
+      showError("Could not reach the API. Check that the server is running.");
+    } finally {
+      submit.disabled = false; submit.textContent = "Get prediction";
+    }
+  });
+
+  fetch(`${API}/info`).then(r => r.json()).then(i => {
+    document.getElementById("model-info").textContent = i.model_name
+      ? `Model: ${i.model_name} v${i.version} (@${i.alias}), test ROC AUC ${i.test_roc_auc}, run ${i.run_id.slice(0, 8)}`
+      : "Model: info unavailable";
+  }).catch(() => {});
+</script>
+</body>
+</html>

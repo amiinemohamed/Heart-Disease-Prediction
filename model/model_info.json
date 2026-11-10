@@ -1,0 +1,21 @@
+{
+  "model_name": "heart-disease-classifier",
+  "version": 1,
+  "alias": "champion",
+  "run_id": "c91acf4afa7247af896235a7c99f4059",
+  "test_roc_auc": 0.9346,
+  "test_f1": 0.9029,
+  "features": [
+    "Cholesterol",
+    "RestingBP",
+    "Age",
+    "FastingBS",
+    "MaxHR",
+    "Oldpeak",
+    "Sex",
+    "ChestPainType",
+    "RestingECG",
+    "ExerciseAngina",
+    "ST_Slope"
+  ]
+}

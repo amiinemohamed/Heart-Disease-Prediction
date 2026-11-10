@@ -1,0 +1,43 @@
+artifact_path: file:///c:/Users/Amine/Documents/Master%202026-2027/MLOps/TP6/mlops-heart-disease/mlruns/models/m-10bbe63a4aff41a484c68d422d7c6f86/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.11.16
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.1
+    skops_trusted_types:
+    - numpy.dtype
+    - sklearn.tree._tree.Tree
+is_signature_from_type_hint: false
+mlflow_version: 3.17.2
+model_id: m-10bbe63a4aff41a484c68d422d7c6f86
+model_size_bytes: 269030
+model_uuid: m-10bbe63a4aff41a484c68d422d7c6f86
+prompts: null
+run_id: c91acf4afa7247af896235a7c99f4059
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "Cholesterol", "required": true}, {"type":
+    "double", "name": "RestingBP", "required": true}, {"type": "double", "name": "Age",
+    "required": true}, {"type": "double", "name": "FastingBS", "required": true},
+    {"type": "double", "name": "MaxHR", "required": true}, {"type": "double", "name":
+    "Oldpeak", "required": true}, {"type": "string", "name": "Sex", "required": true},
+    {"type": "string", "name": "ChestPainType", "required": true}, {"type": "string",
+    "name": "RestingECG", "required": true}, {"type": "string", "name": "ExerciseAngina",
+    "required": true}, {"type": "string", "name": "ST_Slope", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-11-06 22:10:49.002757'

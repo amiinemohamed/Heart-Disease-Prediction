@@ -1,0 +1,4 @@
+# API-only dependencies. Model dependencies (mlflow, scikit-learn, skops...) come from model/requirements.txt,
+# which MLflow generated at training time with the exact versions used.
+fastapi==0.162.0
+uvicorn==0.54.0

@@ -1,0 +1,11 @@
+mlruns/
+mlflow.db
+data/
+notebooks/
+deploy/
+.venv/
+venv/
+**/__pycache__/
+**/.ipynb_checkpoints/
+.git/
+*.md

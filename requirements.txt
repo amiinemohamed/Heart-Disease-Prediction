@@ -1,0 +1,14 @@
+# Training / tracking environment (notebook). Versions pinned so the experiment is reproducible.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+mlflow==3.18.0
+scikit-learn==1.9.1
+pandas==3.0.6
+matplotlib
+requests
+kagglehub
+jupyterlab
+ipykernel
+# For running the API locally
+fastapi==0.162.0
+uvicorn==0.54.0
